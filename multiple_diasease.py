@@ -52,36 +52,26 @@ if selected == 'Diabetes Prediction':
 # heart diaseaes
 if selected == 'Heart Disease Prediction':
     st.title('Heart Disease Prediction using SVM')
-    
-    # input fields for diabetes prediction
-    col1, col2,col3 ,col4= st.columns(4)
-    
-    with col1:
-        age = st.text_input('Enter Age')
-    with col2:
-        sex = st.text_input('Enter Gender (0 = female, 1 = male)')
-    with col3:
-        cp = st.text_input('Enter Chest Pain Type (cp)')
-    with col4:
-        trestbps = st.text_input('Enter Resting Blood Pressure (trestbps)')
-    with col1:
-        chol = st.text_input('Enter Cholesterol Level')
-    with col2:
-        fbs = st.text_input('Fasting Blood Sugar > 120 mg/dl (0 = false; 1 = true)')
-    with col3:
-        restecg = st.text_input('Resting ECG Results')
-    with col4:
-        thalach = st.text_input('Maximum Heart Rate Achieved')
-    with col1:
-        exang = st.text_input('Exercise Induced Angina (0 = no; 1 = yes)')
-    with col2:
-        oldpeak = st.text_input('ST Depression Induced by Exercise')
-    with col3:
-        slope = st.text_input('Slope of the Peak Exercise ST Segment')
-    with col4:
-        ca = st.text_input('Number of Major Vessels Colored by Fluoroscopy (0–3)')
-    with col1:
-        thal = st.text_input('Thal (1 = normal; 2 = fixed defect; 3 = reversible defect)')
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            age = st.text_input('Age')
+            chol = st.text_input('Cholesterol Level')
+            exang = st.text_input('Exercise Induced Angina (0 = no; 1 = yes)')
+            thal = st.text_input('Thal (1 = normal; 2 = fixed defect; 3 = reversible defect)')
+
+        with col2:
+            sex = st.text_input('Gender (0 = female, 1 = male)')
+            fbs = st.text_input('Fasting Blood Sugar > 120 mg/dl (0 = false; 1 = true)')
+            oldpeak = st.text_input('ST Depression Induced by Exercise')
+            slope = st.text_input('Slope of the Peak Exercise ST Segment')
+
+        with col3:
+            cp = st.text_input('Chest Pain Type (cp)')
+            trestbps = st.text_input('Resting Blood Pressure (trestbps)')
+            restecg = st.text_input('Resting ECG Results')
+            thalach = st.text_input('Maximum Heart Rate Achieved')
+            ca = st.text_input('Number of Major Vessels Colored by Fluoroscopy (0–3)')
 
         
     # prediction button
