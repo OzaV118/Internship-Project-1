@@ -60,22 +60,22 @@ if selected == 'Heart Disease Prediction':
 
         with col1:
             age = st.text_input('Age')
-            chol = st.text_input('Cholesterol Level')
-            exang = st.text_input('Exercise Induced Angina (0 = no; 1 = yes)')
-            thal = st.text_input('Thal (1 = normal; 2 = fixed defect; 3 = reversible defect)')
+            chol = st.text_input('Cholesterol (mg/dL)')
+            exang = st.text_input('Exercise Angina (1=Yes, 0=No)')
+            thal = st.text_input('Thal (1=Normal, 2=Fixed, 3=Reversible)')
 
         with col2:
-            sex = st.text_input('Gender (0 = female, 1 = male)')
-            fbs = st.text_input('Fasting Blood Sugar > 120 mg/dl (0 = false; 1 = true)')
-            oldpeak = st.text_input('ST Depression Induced by Exercise')
-            slope = st.text_input('Slope of the Peak Exercise ST Segment')
+            sex = st.text_input('Gender (0=Female, 1=Male)')
+            fbs = st.text_input('Fasting Sugar (1=Yes, 0=No)')
+            oldpeak = st.text_input('ST Depression')
+            slope = st.text_input('ST Slope (0–2)')
 
         with col3:
-            cp = st.text_input('Chest Pain Type (cp)')
-            trestbps = st.text_input('Resting Blood Pressure (trestbps)')
-            restecg = st.text_input('Resting ECG Results')
-            thalach = st.text_input('Maximum Heart Rate Achieved')
-            ca = st.text_input('Number of Major Vessels Colored by Fluoroscopy (0–3)')
+            cp = st.text_input('Chest Pain Type (0–3)')
+            trestbps = st.text_input('Resting BP (mm Hg)')
+            restecg = st.text_input('Resting ECG (0–2)')
+            thalach = st.text_input('Max Heart Rate')
+            ca = st.text_input('Major Vessels (0–3)')
 
         submitted = st.form_submit_button('Heart Disease Test Result')
 
