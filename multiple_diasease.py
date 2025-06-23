@@ -98,7 +98,7 @@ if selected == 'Parkinsons Prediction':
     st.title('Parkinsons Prediction using SVM')
 
     with st.form("parkinsons_form"):
-        col1, col2, col3, col4, col5 = st.columns(5)
+        col1, col2, col3, col4 = st.columns(4)
 
         with col1:
             fo = st.text_input('MDVP:Fo(Hz)')
@@ -116,6 +116,7 @@ if selected == 'Parkinsons Prediction':
             Shimmer = st.text_input('MDVP:Shimmer')
             Shimmer_dB = st.text_input('MDVP:Shimmer(dB)')
             APQ3 = st.text_input('Shimmer:APQ3')
+            HNR = st.text_input('HNR')
 
         with col4:
             APQ5 = st.text_input('Shimmer:APQ5')
@@ -123,8 +124,8 @@ if selected == 'Parkinsons Prediction':
             DDA = st.text_input('Shimmer:DDA')
             NHR = st.text_input('NHR')
 
-        with col5:
-            HNR = st.text_input('HNR')
+        
+            
 
         submitted = st.form_submit_button('Parkinsons Test Result')
 
