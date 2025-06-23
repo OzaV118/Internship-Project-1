@@ -19,7 +19,7 @@ with st.sidebar:
 
 # Diabetes Prediction Page
 if selected == 'Diabetes Prediction':
-    st.title('Diabetes Prediction System')
+    st.title('Diabetes Prediction  System')
 
     with st.form("diabetes_form"):
         col1, col2 = st.columns(2)
