@@ -19,7 +19,7 @@ with st.sidebar:
 
 # Diabetes Prediction Page
 if selected == 'Diabetes Prediction':
-    st.title('Diabetes Prediction using SVM')
+    st.title('Diabetes Prediction System')
 
     with st.form("diabetes_form"):
         col1, col2 = st.columns(2)
@@ -53,7 +53,7 @@ if selected == 'Diabetes Prediction':
 
 # Heart Disease Prediction Page
 if selected == 'Heart Disease Prediction':
-    st.title('Heart Disease Prediction using SVM')
+    st.title('Heart Disease Prediction System')
 
     with st.form("heart_form"):
         col1, col2, col3 = st.columns(3)
@@ -95,7 +95,7 @@ if selected == 'Heart Disease Prediction':
 
 # Parkinsons Prediction Page
 if selected == 'Parkinsons Prediction':
-    st.title('Parkinsons Prediction using SVM')
+    st.title('Parkinsons Prediction  System')
 
     with st.form("parkinsons_form"):
         col1, col2, col3, col4 = st.columns(4)
