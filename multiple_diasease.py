@@ -9,6 +9,18 @@ heart_diseases_model = pickle.load(open('heart_diseases_svm_regreestion.sav', 'r
 heart_diseases_scaler = pickle.load(open('heart_diseases_scaler.sav', 'rb'))
 parkinsons_model = pickle.load(open('parkinson_svc.sav', 'rb'))
 
+@st.cache_resource
+def load_lung_model():
+    try:
+        with open("lung_cancer.sav", "rb") as f:
+            model = pickle.load(f)
+        return model
+    except FileNotFoundError:
+        st.error("The lung cancer model file was not found. Make sure 'lung_cancer.sav' is in the same folder.")
+        return None
+
+lung_model = load_lung_model()
+
 # ----------------------- Prediction Function -----------------------
 def predict(model, inputs, scaler=None):
     try:
@@ -22,6 +34,21 @@ def predict(model, inputs, scaler=None):
         st.error("Please enter valid numeric values in all fields.")
         return None
 
+def predict_lung_risk(features):
+    data = np.array(features).reshape(1, -1)
+    result = lung_model.predict(data)[0]
+
+    try:
+        confidence = lung_model.predict_proba(data).max()
+        confidence_text = f" (Confidence: {confidence*100:.2f}%)"
+    except:
+        confidence_text = ""
+
+    if result == 0:
+        return f"High Risk of Lung Cancer{confidence_text}"
+    else:
+        return f"Low Risk of Lung Cancer{confidence_text}"
+
 # ----------------------- Streamlit UI -----------------------
 st.set_page_config(page_title="🧠 Multiple Disease Prediction", layout="centered")
 
@@ -29,8 +56,8 @@ st.set_page_config(page_title="🧠 Multiple Disease Prediction", layout="center
 with st.sidebar:
     selected = option_menu(
         'Multiple Disease Prediction System',
-        ['Home', 'Diabetes Prediction', 'Heart Disease Prediction', 'Parkinsons Prediction'],
-        icons=['house', 'activity', 'heart', 'person'],
+        ['Home', 'Diabetes Prediction', 'Heart Disease Prediction', "Parkinsons Prediction", "Lung Cancer Prediction"],
+        icons=['house', 'activity', 'heart', 'person', 'lungs'],
         default_index=0
     )
 
@@ -42,12 +69,13 @@ if selected == 'Home':
         - **Diabetes**
         - **Heart Disease**
         - **Parkinson’s Disease**
+        - **Lung Cancer Risk**
         
         Please select a test from the sidebar and enter the required medical data.
     """)
 
 # ----------------------- Diabetes Prediction Page -----------------------
-if selected == 'Diabetes Prediction':
+elif selected == 'Diabetes Prediction':
     st.title('Diabetes Prediction System')
 
     with st.form("diabetes_form"):
@@ -78,7 +106,7 @@ if selected == 'Diabetes Prediction':
                 st.error('The person is diabetic.')
 
 # ----------------------- Heart Disease Prediction Page -----------------------
-if selected == 'Heart Disease Prediction':
+elif selected == 'Heart Disease Prediction':
     st.title('Heart Disease Prediction System')
 
     with st.form("heart_form"):
@@ -115,8 +143,8 @@ if selected == 'Heart Disease Prediction':
             elif result == 1:
                 st.error('The person HAS a heart disease.')
 
-# ----------------------- Parkinson's Disease Prediction Page -----------------------
-if selected == 'Parkinsons Prediction':
+# ----------------------- Parkinson's Prediction Page -----------------------
+elif selected == 'Parkinsons Prediction':
     st.title("Parkinson's Disease Prediction System")
 
     with st.form("parkinsons_form"):
@@ -157,3 +185,50 @@ if selected == 'Parkinsons Prediction':
                 st.success("The person does not have Parkinson’s disease.")
             elif result == 1:
                 st.error("The person has Parkinson’s disease.")
+
+# ----------------------- Lung Cancer Prediction Page -----------------------
+elif selected == 'Lung Cancer Prediction':
+    st.title("Lung Cancer Risk Predictor")
+    st.write("Fill in the details below to get a prediction.")
+
+    gender_map = {'Male': 0, 'Female': 1}
+    country_map = {'Malta': 0, 'Ireland': 1, 'Portugal': 2, 'France': 3, 'Sweden': 4, 'Croatia': 5, 'Greece': 6, 'Spain': 7,
+        'Netherlands': 8, 'Denmark': 9, 'Slovenia': 10, 'Belgium': 11, 'Hungary': 12, 'Romania': 13, 'Poland': 14,
+        'Italy': 15, 'Germany': 16, 'Estonia': 17, 'Czech Republic': 18, 'Lithuania': 19, 'Slovakia': 20,
+        'Austria': 21, 'Finland': 22, 'Luxembourg': 23, 'Cyprus': 24, 'Latvia': 25, 'Bulgaria': 26}
+    stage_map = {'Stage III': 0, 'Stage IV': 1, 'Stage I': 2, 'Stage II': 3}
+    family_history_map = {'No': 0, 'Yes': 1}
+    smoke_map = {'Passive Smoker': 0, 'Never Smoked': 1, 'Former Smoker': 2, 'Current Smoker': 3}
+    treatment_map = {'Chemotherapy': 0, 'Surgery': 1, 'Combined': 2, 'Radiation': 3}
+
+    age = st.number_input("Age", 1, 120, step=1)
+    gender = st.selectbox("Gender", list(gender_map.keys()))
+    country = st.selectbox("Country", list(country_map.keys()))
+
+    stage = st.selectbox("Cancer Stage", list(stage_map.keys()))
+    fam_history = st.selectbox("Family History of Cancer?", list(family_history_map.keys()))
+    smoker = st.selectbox("Smoking Status", list(smoke_map.keys()))
+    bmi = st.number_input("BMI", 10.0, 50.0, step=0.1)
+    cholesterol = st.number_input("Cholesterol Level", 100, 300)
+
+    hypertension = st.radio("Hypertension", [0, 1], format_func=lambda x: "Yes" if x else "No")
+    asthma = st.radio("Asthma", [0, 1], format_func=lambda x: "Yes" if x else "No")
+    cirrhosis = st.radio("Cirrhosis", [0, 1], format_func=lambda x: "Yes" if x else "No")
+    other_cancer = st.radio("Other Cancers Diagnosed", [0, 1], format_func=lambda x: "Yes" if x else "No")
+    treatment = st.selectbox("Treatment Type", list(treatment_map.keys()))
+
+    if st.button("Check Risk"):
+        if not lung_model:
+            st.warning("Lung cancer model not loaded.")
+        else:
+            if age == 1 and bmi == 10.0 and cholesterol == 100:
+                st.warning("Please enter real values instead of defaults.")
+            else:
+                inputs = [
+                    age, gender_map[gender], country_map[country], stage_map[stage], family_history_map[fam_history],
+                    smoke_map[smoker], bmi, cholesterol, hypertension, asthma, cirrhosis, other_cancer,
+                    treatment_map[treatment]
+                ]
+                prediction = predict_lung_risk(inputs)
+                st.success(prediction)
+                st.info("This is just a prediction. For medical advice, consult a doctor.")
