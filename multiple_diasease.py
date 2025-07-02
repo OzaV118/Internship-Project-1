@@ -1,155 +1,159 @@
-import streamlit as st
-import numpy as np
-import pandas as pd
 import pickle
+import numpy as np
+import streamlit as st
+from streamlit_option_menu import option_menu
 
-# === Load model with caching ===
-@st.cache_resource
-def load_model():
+# ----------------------- Load saved models and scaler -----------------------
+diabetes_model = pickle.load(open('diabities_svm.sav', 'rb'))
+heart_diseases_model = pickle.load(open('heart_diseases_svm_regreestion.sav', 'rb'))
+heart_diseases_scaler = pickle.load(open('heart_diseases_scaler.sav', 'rb'))
+parkinsons_model = pickle.load(open('parkinson_svc.sav', 'rb'))
+
+# ----------------------- Prediction Function -----------------------
+def predict(model, inputs, scaler=None):
     try:
-        model = pickle.load(open("weather_model.sav", "rb"))
-        return model
-    except FileNotFoundError:
-        st.error("❌ Model file 'weather_model.sav' not found in the directory.")
-        st.stop()
+        inputs = [float(i) for i in inputs]
+        inputs = np.array(inputs).reshape(1, -1)
+        if scaler:
+            inputs = scaler.transform(inputs)
+        prediction = model.predict(inputs)
+        return prediction[0]
+    except ValueError:
+        st.error("Please enter valid numeric values in all fields.")
+        return None
 
-weather_model = load_model()
+# ----------------------- Streamlit UI -----------------------
+st.set_page_config(page_title="🧠 Multiple Disease Prediction", layout="centered")
 
-# === Encoding Maps ===
-cloud_cover_map = {"clear": 0, "partly cloudy": 1, "overcast": 2}
-season_map = {'Winter': 0, 'Spring': 1, 'Summer': 2, 'Fall': 3}
-location_map = {'inland': 0, 'coastal': 1, 'mountain': 2}
-weather_map = {0: "Cloudy", 1: "Rainy", 2: "Sunny", 3: "Overcast", 4: "Snowy"}
-
-# === Page Configuration ===
-st.set_page_config(page_title="🌦️ Smart Weather Predictor", layout="centered", page_icon="🌤️")
-st.title("🌦️ Smart Weather Type Prediction")
-
-# === Sidebar ===
+# === Sidebar Menu ===
 with st.sidebar:
-    st.header("ℹ️ About")
-    st.markdown("This app uses an AI model to predict the weather type.")
-    st.markdown("Built by [Your Name](https://github.com/yourprofile)")
-    uploaded_file = st.file_uploader("📁 Upload CSV for Bulk Prediction", type=["csv"])
+    selected = option_menu(
+        'Multiple Disease Prediction System',
+        ['Home', 'Diabetes Prediction', 'Heart Disease Prediction', 'Parkinsons Prediction'],
+        icons=['house', 'activity', 'heart', 'person'],
+        default_index=0
+    )
 
-# === Input Sliders ===
-st.header("🔧 Enter Weather Parameters")
+# ----------------------- Home Page -----------------------
+if selected == 'Home':
+    st.title("Welcome to the Multiple Disease Prediction System")
+    st.write("""
+        This application uses machine learning models to predict the presence of:
+        - **Diabetes**
+        - **Heart Disease**
+        - **Parkinson’s Disease**
+        
+        Please select a test from the sidebar and enter the required medical data.
+    """)
 
-col1, col2 = st.columns(2)
-with col1:
-    temperature = st.slider("Temperature (°C)", -30.0, 50.0, 25.0)
-    wind_speed = st.slider("Wind Speed (km/h)", 0.0, 150.0, 10.0)
-    atmospheric_pressure = st.slider("Pressure (hPa)", 900.0, 1100.0, 1013.0)
-    visibility = st.slider("Visibility (km)", 0.0, 50.0, 10.0)
-with col2:
-    humidity = st.slider("Humidity (%)", 0.0, 100.0, 50.0)
-    precipitation = st.slider("Precipitation (%)", 0.0, 100.0, 10.0)
-    uv_index = st.slider("UV Index", 0.0, 15.0, 5.0)
+# ----------------------- Diabetes Prediction Page -----------------------
+if selected == 'Diabetes Prediction':
+    st.title('Diabetes Prediction System')
 
-col3, col4, col5 = st.columns(3)
-with col3:
-    cloud_cover_input = st.selectbox("☁️ Cloud Cover", list(cloud_cover_map.keys()))
-with col4:
-    season_input = st.selectbox("🌱 Season", list(season_map.keys()))
-with col5:
-    location_input = st.selectbox("📍 Location", list(location_map.keys()))
+    with st.form("diabetes_form"):
+        col1, col2 = st.columns(2)
 
-# === Prediction Function ===
-def predict_weather(data):
-    arr = np.array(data).reshape(1, -1)
-    prediction = weather_model.predict(arr)[0]
-    try:
-        confidence = weather_model.predict_proba(arr)[0]
-        top_conf = np.max(confidence)
-    except:
-        top_conf = None
-    return prediction, top_conf
+        with col1:
+            Pregnancies = st.text_input('Number of Pregnancies')
+            Glucose = st.text_input('Glucose Level (mg/dL)')
+            BloodPressure = st.text_input('Blood Pressure (mm Hg)')
+            SkinThickness = st.text_input('Skin Thickness (mm)')
 
-# === Prediction Trigger ===
-if st.button("🔍 Predict Weather Type"):
-    input_data = [
-        temperature,
-        humidity,
-        wind_speed,
-        precipitation,
-        cloud_cover_map[cloud_cover_input],
-        atmospheric_pressure,
-        uv_index,
-        season_map[season_input],
-        visibility,
-        location_map[location_input]
-    ]
+        with col2:
+            Insulin = st.text_input('Insulin Level (mu U/ml)')
+            BMI = st.text_input('BMI (kg/m²)')
+            DiabetesPedigreeFunction = st.text_input('Diabetes Pedigree Function')
+            Age = st.text_input('Age (years)')
 
-    label, conf = predict_weather(input_data)
-    label_text = weather_map.get(label, f"Label {label}")
+        submitted = st.form_submit_button('Get Diabetes Result')
 
-    st.success(f"🌤️ Predicted Weather Type: **{label_text}**")
-    if conf:
-        st.progress(int(conf * 100))
-        st.caption(f"Confidence: **{conf * 100:.2f}%**")
+        if submitted:
+            input_data = [Pregnancies, Glucose, BloodPressure, SkinThickness,
+                          Insulin, BMI, DiabetesPedigreeFunction, Age]
+            result = predict(diabetes_model, input_data)
 
-    # Live Input Summary
-    with st.expander("📊 Input Summary"):
-        st.write({
-            "Temperature": temperature,
-            "Humidity": humidity,
-            "Wind Speed": wind_speed,
-            "Precipitation": precipitation,
-            "Cloud Cover": cloud_cover_input,
-            "Pressure": atmospheric_pressure,
-            "UV Index": uv_index,
-            "Season": season_input,
-            "Visibility": visibility,
-            "Location": location_input
-        })
+            if result == 0:
+                st.success('The person is not diabetic.')
+            elif result == 1:
+                st.error('The person is diabetic.')
 
-    # CSV Report Download
-    result_df = pd.DataFrame([{
-        "Prediction": label_text,
-        "Confidence": f"{conf * 100:.2f}%" if conf else "N/A",
-        "Temperature": temperature,
-        "Humidity": humidity,
-        "Wind Speed": wind_speed,
-        "Precipitation": precipitation,
-        "Cloud Cover": cloud_cover_input,
-        "Pressure": atmospheric_pressure,
-        "UV Index": uv_index,
-        "Season": season_input,
-        "Visibility": visibility,
-        "Location": location_input
-    }])
-    csv = result_df.to_csv(index=False).encode()
-    st.download_button("📥 Download Prediction Report", csv, "weather_prediction.csv", mime="text/csv")
+# ----------------------- Heart Disease Prediction Page -----------------------
+if selected == 'Heart Disease Prediction':
+    st.title('Heart Disease Prediction System')
 
-# === Bulk CSV Prediction ===
-if uploaded_file:
-    try:
-        df = pd.read_csv(uploaded_file)
+    with st.form("heart_form"):
+        col1, col2, col3 = st.columns(3)
 
-        df["Cloud Cover"] = df["Cloud Cover"].map(cloud_cover_map)
-        df["Season"] = df["Season"].map(season_map)
-        df["Location"] = df["Location"].map(location_map)
+        with col1:
+            age = st.text_input('Age (years)')
+            chol = st.text_input('Cholesterol (mg/dL)')
+            exang = st.text_input('Exercise Angina (1 = Yes, 0 = No)')
+            thal = st.text_input('Thal (1=Normal, 2=Fixed, 3=Reversible)')
 
-        features = [
-            "Temperature", "Humidity", "Wind Speed", "Precipitation",
-            "Cloud Cover", "Pressure", "UV Index", "Season", "Visibility", "Location"
-        ]
+        with col2:
+            sex = st.text_input('Gender (1=Male, 0=Female)')
+            fbs = st.text_input('Fasting Blood Sugar > 120 mg/dL (1 = Yes, 0 = No)')
+            oldpeak = st.text_input('ST Depression (Oldpeak)')
+            slope = st.text_input('Slope of ST segment (0–2)')
 
-        predictions = weather_model.predict(df[features])
-        try:
-            probs = weather_model.predict_proba(df[features])
-            confs = np.max(probs, axis=1)
-        except:
-            confs = [None] * len(predictions)
+        with col3:
+            cp = st.text_input('Chest Pain Type (0–3)')
+            trestbps = st.text_input('Resting Blood Pressure (mm Hg)')
+            restecg = st.text_input('Resting ECG (0–2)')
+            thalach = st.text_input('Max Heart Rate Achieved')
+            ca = st.text_input('Number of Major Vessels (0–3)')
 
-        df["Prediction"] = [weather_map.get(p, p) for p in predictions]
-        df["Confidence"] = [f"{c*100:.2f}%" if c else "N/A" for c in confs]
+        submitted = st.form_submit_button('Get Heart Disease Result')
 
-        st.subheader("📋 Bulk Prediction Results")
-        st.dataframe(df)
+        if submitted:
+            input_data = [age, sex, cp, trestbps, chol, fbs, restecg,
+                          thalach, exang, oldpeak, slope, ca, thal]
+            result = predict(heart_diseases_model, input_data, scaler=heart_diseases_scaler)
 
-        csv_bulk = df.to_csv(index=False).encode()
-        st.download_button("⬇️ Download Bulk Results", csv_bulk, "bulk_predictions.csv", mime="text/csv")
+            if result == 0:
+                st.success('The person does NOT have a heart disease.')
+            elif result == 1:
+                st.error('The person HAS a heart disease.')
 
-    except Exception as e:
-        st.error(f"❌ Error processing file: {e}")
+# ----------------------- Parkinson's Disease Prediction Page -----------------------
+if selected == 'Parkinsons Prediction':
+    st.title("Parkinson's Disease Prediction System")
+
+    with st.form("parkinsons_form"):
+        col1, col2, col3, col4 = st.columns(4)
+
+        with col1:
+            fo = st.text_input('MDVP:Fo(Hz)')
+            fhi = st.text_input('MDVP:Fhi(Hz)')
+            flo = st.text_input('MDVP:Flo(Hz)')
+            Jitter_percent = st.text_input('MDVP:Jitter(%)')
+
+        with col2:
+            Jitter_Abs = st.text_input('MDVP:Jitter(Abs)')
+            RAP = st.text_input('MDVP:RAP')
+            PPQ = st.text_input('MDVP:PPQ')
+            DDP = st.text_input('Jitter:DDP')
+
+        with col3:
+            Shimmer = st.text_input('MDVP:Shimmer')
+            Shimmer_dB = st.text_input('MDVP:Shimmer(dB)')
+            APQ3 = st.text_input('Shimmer:APQ3')
+            HNR = st.text_input('HNR')
+
+        with col4:
+            APQ5 = st.text_input('Shimmer:APQ5')
+            APQ = st.text_input('MDVP:APQ')
+            DDA = st.text_input('Shimmer:DDA')
+            NHR = st.text_input('NHR')
+
+        submitted = st.form_submit_button('Get Parkinsons Result')
+
+        if submitted:
+            input_data = [fo, fhi, flo, Jitter_percent, Jitter_Abs, RAP, PPQ, DDP,
+                          Shimmer, Shimmer_dB, APQ3, APQ5, APQ, DDA, NHR, HNR]
+            result = predict(parkinsons_model, input_data)
+
+            if result == 0:
+                st.success("The person does not have Parkinson’s disease.")
+            elif result == 1:
+                st.error("The person has Parkinson’s disease.")
