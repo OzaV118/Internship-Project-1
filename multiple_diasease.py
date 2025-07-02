@@ -6,7 +6,7 @@ from streamlit_option_menu import option_menu
 
 # ----------------------- Load saved models and scaler -----------------------
 # Load machine learning models using pickle
-diabetes_model = pickle.load(open('diabetes_svm.sav', 'rb'))  # Diabetes prediction model
+diabetes_model = pickle.load(open('diabities_svm.sav', 'rb'))# Diabetes prediction model
 heart_diseases_model = pickle.load(open('heart_diseases_svm_regression.sav', 'rb'))  # Heart disease model
 heart_diseases_scaler = pickle.load(open('heart_diseases_scaler.sav', 'rb'))  # Scaler for heart data
 parkinsons_model = pickle.load(open('parkinson_svc.sav', 'rb'))  # Parkinson's disease model
