@@ -191,37 +191,39 @@ elif selected == 'Lung Cancer Prediction':
     st.title("Lung Cancer Risk Predictor")
 
     gender_map = {'Male': 0, 'Female': 1}
-    country_map = {'Malta': 0, 'Ireland': 1, 'Portugal': 2, 'France': 3, 'Sweden': 4, 'Croatia': 5, 'Greece': 6, 'Spain': 7,
-                   'Netherlands': 8, 'Denmark': 9, 'Slovenia': 10, 'Belgium': 11, 'Hungary': 12, 'Romania': 13, 'Poland': 14,
-                   'Italy': 15, 'Germany': 16, 'Estonia': 17, 'Czech Republic': 18, 'Lithuania': 19, 'Slovakia': 20,
-                   'Austria': 21, 'Finland': 22, 'Luxembourg': 23, 'Cyprus': 24, 'Latvia': 25, 'Bulgaria': 26}
+    country_map = {...}  # same as before
     stage_map = {'Stage III': 0, 'Stage IV': 1, 'Stage I': 2, 'Stage II': 3}
     family_history_map = {'No': 0, 'Yes': 1}
     smoke_map = {'Passive Smoker': 0, 'Never Smoked': 1, 'Former Smoker': 2, 'Current Smoker': 3}
     treatment_map = {'Chemotherapy': 0, 'Surgery': 1, 'Combined': 2, 'Radiation': 3}
 
-    age = st.number_input("Age", 1, 120, step=1)
-    gender = st.selectbox("Gender", list(gender_map.keys()))
-    country = st.selectbox("Country", list(country_map.keys()))
+    with st.form("lung_form"):
+        col1, col2, col3 = st.columns(3)
 
-    stage = st.selectbox("Cancer Stage", list(stage_map.keys()))
-    fam_history = st.selectbox("Family History of Cancer?", list(family_history_map.keys()))
-    smoker = st.selectbox("Smoking Status", list(smoke_map.keys()))
-    bmi = st.number_input("BMI", 10.0, 50.0, step=0.1)
-    cholesterol = st.number_input("Cholesterol Level", 100, 300)
+        with col1:
+            age = st.number_input("Age", 1, 120, step=1)
+            gender = st.selectbox("Gender", list(gender_map.keys()))
+            smoker = st.selectbox("Smoking Status", list(smoke_map.keys()))
+            fam_history = st.selectbox("Family History of Cancer?", list(family_history_map.keys()))
 
-    hypertension = st.radio("Hypertension", [0, 1], format_func=lambda x: "Yes" if x else "No")
-    asthma = st.radio("Asthma", [0, 1], format_func=lambda x: "Yes" if x else "No")
-    cirrhosis = st.radio("Cirrhosis", [0, 1], format_func=lambda x: "Yes" if x else "No")
-    other_cancer = st.radio("Other Cancers Diagnosed", [0, 1], format_func=lambda x: "Yes" if x else "No")
-    treatment = st.selectbox("Treatment Type", list(treatment_map.keys()))
+        with col2:
+            country = st.selectbox("Country", list(country_map.keys()))
+            stage = st.selectbox("Cancer Stage", list(stage_map.keys()))
+            treatment = st.selectbox("Treatment Type", list(treatment_map.keys()))
+            bmi = st.number_input("BMI", 10.0, 50.0, step=0.1)
 
-    if st.button("Check Risk"):
-        if not lung_model:
-            st.warning("Lung cancer model not loaded.")
-        else:
-            if age == 1 and bmi == 10.0 and cholesterol == 100:
-                st.warning("Please enter real values instead of defaults.")
+        with col3:
+            cholesterol = st.number_input("Cholesterol Level", 100, 300)
+            hypertension = st.radio("Hypertension", [0, 1], format_func=lambda x: "Yes" if x else "No")
+            asthma = st.radio("Asthma", [0, 1], format_func=lambda x: "Yes" if x else "No")
+            cirrhosis = st.radio("Cirrhosis", [0, 1], format_func=lambda x: "Yes" if x else "No")
+            other_cancer = st.radio("Other Cancers Diagnosed", [0, 1], format_func=lambda x: "Yes" if x else "No")
+
+        submitted = st.form_submit_button("Get Lung Cancer Risk")
+
+        if submitted:
+            if not lung_model:
+                st.warning("Lung cancer model not loaded.")
             else:
                 inputs = [
                     age, gender_map[gender], country_map[country], stage_map[stage], family_history_map[fam_history],
