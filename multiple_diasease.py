@@ -16,7 +16,7 @@ def load_lung_model():
             model = pickle.load(f)
         return model
     except FileNotFoundError:
-        st.error("The lung cancer model file was not found. Make sure 'lung_cancer.sav' is in the same folder.")
+        st.error("The lung cancer model file was not found.")
         return None
 
 lung_model = load_lung_model()
@@ -70,7 +70,7 @@ if selected == 'Home':
         - **Heart Disease**
         - **Parkinson’s Disease**
         - **Lung Cancer Risk**
-        
+
         Please select a test from the sidebar and enter the required medical data.
     """)
 
@@ -189,13 +189,12 @@ elif selected == 'Parkinsons Prediction':
 # ----------------------- Lung Cancer Prediction Page -----------------------
 elif selected == 'Lung Cancer Prediction':
     st.title("Lung Cancer Risk Predictor")
-    st.write("Fill in the details below to get a prediction.")
 
     gender_map = {'Male': 0, 'Female': 1}
     country_map = {'Malta': 0, 'Ireland': 1, 'Portugal': 2, 'France': 3, 'Sweden': 4, 'Croatia': 5, 'Greece': 6, 'Spain': 7,
-        'Netherlands': 8, 'Denmark': 9, 'Slovenia': 10, 'Belgium': 11, 'Hungary': 12, 'Romania': 13, 'Poland': 14,
-        'Italy': 15, 'Germany': 16, 'Estonia': 17, 'Czech Republic': 18, 'Lithuania': 19, 'Slovakia': 20,
-        'Austria': 21, 'Finland': 22, 'Luxembourg': 23, 'Cyprus': 24, 'Latvia': 25, 'Bulgaria': 26}
+                   'Netherlands': 8, 'Denmark': 9, 'Slovenia': 10, 'Belgium': 11, 'Hungary': 12, 'Romania': 13, 'Poland': 14,
+                   'Italy': 15, 'Germany': 16, 'Estonia': 17, 'Czech Republic': 18, 'Lithuania': 19, 'Slovakia': 20,
+                   'Austria': 21, 'Finland': 22, 'Luxembourg': 23, 'Cyprus': 24, 'Latvia': 25, 'Bulgaria': 26}
     stage_map = {'Stage III': 0, 'Stage IV': 1, 'Stage I': 2, 'Stage II': 3}
     family_history_map = {'No': 0, 'Yes': 1}
     smoke_map = {'Passive Smoker': 0, 'Never Smoked': 1, 'Former Smoker': 2, 'Current Smoker': 3}
